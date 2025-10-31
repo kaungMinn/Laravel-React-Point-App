@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\PointController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -18,9 +19,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     Route::resource('users', UserController::class);
-
+    Route::resource('leaderboard', controller: LeaderboardController::class);
     Route::resource('points', controller: PointController::class);
-
 });
 
 Route::get('error-page', function () {

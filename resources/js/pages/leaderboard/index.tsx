@@ -1,25 +1,47 @@
-// import AppLayout from '@/layouts/app-layout';
-// import { leaderboard } from '@/routes';
-// import { type BreadcrumbItem } from '@/types';
-// import { Head } from '@inertiajs/react';
+import AppLayout from '@/layouts/app-layout';
+import { PageProps } from '@inertiajs/core';
+import { type BreadcrumbItem } from '@/types';
+import { Head } from '@inertiajs/react';
+import { DataTable } from './data-table';
+import { createRankedColumns, UserDataType } from './columns';
+import { PaginationLink } from '../points';
+import Pagination from '@/components/pagination';
 
-// const breadcrumbs: BreadcrumbItem[] = [
-//     {
-//         title: 'Leaderboard',
-//         href: leaderboard().url,
-//     },
-// ];
 
-// export default function Dashboard() {
+interface UserIndexProps extends PageProps {
+    rankedUsers: {
+        data: UserDataType[];
+        links: PaginationLink[],
+        current_page: number,
+        per_page: number
+    },
+    filters: { search: string }
+}
 
-//     return (
-//         <AppLayout breadcrumbs={breadcrumbs}>
-//             <Head title="Dashboard" />
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Leaderboard',
+        href: '/leaderboard',
+    },
+];
 
-//             <div className="bg-white p-6 shadow-md rounded-lg">
-//                 <h2 className="text-xl font-semibold mb-4">Leaderboard</h2>
+export default function Leaderboard({ rankedUsers, filters = { search: '' } }: UserIndexProps) {
+    const columns = createRankedColumns(
+        rankedUsers.current_page,
+        rankedUsers.per_page
+    );
+    return (
+        <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title="Dashboard" />
 
-//             </div>
-//         </AppLayout>
-//     );
-// }
+            <div className="bg-white p-6 ">
+                <h2 className="text-xl font-semibold mb-4">Leaderboard </h2>
+
+                <div>
+                    <DataTable columns={columns} data={rankedUsers?.data} filters={filters} />
+                    <Pagination links={rankedUsers.links} />
+                </div>
+            </div>
+        </AppLayout>
+    );
+}

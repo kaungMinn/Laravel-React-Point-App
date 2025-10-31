@@ -16,7 +16,7 @@ class UserController extends Controller
         $users = User::paginate(15);
 
         // **CORRECT RETURN FOR INERTIA**
-        return Inertia::render('leaderboard/index', [
+        return Inertia::render('users/index', [
             // Pass the data as props to your React component
             'users' => $users,
         ]);

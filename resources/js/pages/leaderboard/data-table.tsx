@@ -108,7 +108,7 @@ export function DataTable<TData, TValue>({
                 </div>
 
                 <div className="space-x-2">
-                    <Button asChild><Link href={'/points/create'}>Create</Link></Button>
+                    <Button asChild><Link href={'/points/create'}>Users</Link></Button>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="outline" className="ml-auto">
@@ -148,7 +148,7 @@ export function DataTable<TData, TValue>({
                             <TableRow key={headerGroup.id} >
                                 {headerGroup.headers.map((header) => {
                                     return (
-                                        <TableHead key={header.id}>
+                                        <TableHead key={header.id}  >
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(

@@ -10,17 +10,8 @@ import { columns, PointData } from './columns';
 
 // ... (Your PointData, PaginationLink, and PointsIndexProps interfaces) ...
 
-// Define the shape of the pagination link objects
-interface PaginationLink {
-    url: string | null;
-    label: string;
-    active: boolean;
-}
-
-
-
 // 2. Define the shape of the pagination link objects
-interface PaginationLink {
+export interface PaginationLink {
     url: string | null;
     label: string;
     active: boolean;
@@ -28,13 +19,6 @@ interface PaginationLink {
 
 
 // 3. Define the props for this page component, using the defined types
-interface PointsIndexProps extends PageProps {
-    points: {
-        data: PointData[]; // Uses PointData
-        links: PaginationLink[]; // Uses PaginationLink
-        // ... other pagination properties
-    };
-}
 
 interface PointsIndexProps extends PageProps {
     points: {
@@ -42,7 +26,7 @@ interface PointsIndexProps extends PageProps {
         links: PaginationLink[]; // <-- Added the links property here
         // ... other pagination properties
     };
-    filters: { search: '' }
+    filters: { search: string }
 }
 
 
@@ -59,7 +43,7 @@ export default function Points({ points, filters = { search: '' } }: PointsIndex
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Points" />
 
-            <div className="bg-white p-6 shadow-md rounded-lg">
+            <div className="bg-white p-6 ">
                 <h2 className="text-xl font-semibold mb-4">Point Transaction History</h2>
 
 

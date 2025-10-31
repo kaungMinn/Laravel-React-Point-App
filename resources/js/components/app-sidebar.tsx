@@ -13,26 +13,34 @@ import {
 import { dashboard, } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { Award, BookOpen, Folder, LayoutGrid, ShieldCheck } from 'lucide-react';
+import { Award, BookOpen, Folder, LayoutGrid, ShieldCheck, User } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
+        // ✅ Works because Ziggy often exports individual functions for convenience
         href: dashboard(),
         icon: LayoutGrid,
     },
     {
         title: 'Leaderboard',
+        // 🛠️ FIX: Use the standard route helper with the named route
         href: '/leaderboard',
         icon: Award
     },
     {
+        title: 'Users',
+        // 🛠️ FIX: Use the standard route helper
+        href: '/users',
+        icon: User
+    },
+    {
         title: 'Points',
+        // 🛠️ FIX: Use the standard route helper
         href: '/points',
         icon: ShieldCheck
     },
-
 ];
 
 const footerNavItems: NavItem[] = [

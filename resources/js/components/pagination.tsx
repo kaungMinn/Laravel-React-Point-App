@@ -76,7 +76,11 @@ const MobilePagination = ({ links }: PaginationProps) => {
 
 export default function Pagination({ links }: PaginationProps) {
     if (!links || links.length <= 3) {
-        return null;
+        return <div className='flex items-center justify-center mt-6'><span
+            className={`px-4 py-2 mx-1 bg-black text-white border-indigo-600 rounded text-sm transition duration-150 ease-in-out`}
+        >
+            1
+        </span></div>
     }
 
     // Pass the full set of links to the mobile component

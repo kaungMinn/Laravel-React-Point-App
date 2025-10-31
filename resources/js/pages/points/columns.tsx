@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -47,12 +47,7 @@ const handleDelete = (id: number) => {
 export const columns: ColumnDef<PointData>[] = [
     {
         accessorKey: "user",
-        header: ({ column }) => {
-            return <Button variant={'ghost'} onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            >
-                User <ArrowUpDown className="ml-2 h-4 w-4" />
-            </Button>
-        },
+        header: 'User',
         size: 150,
         cell: ({ row }) => {
             const user = row.original.user;
@@ -62,12 +57,7 @@ export const columns: ColumnDef<PointData>[] = [
     },
     {
         accessorKey: "points",
-        header: ({ column }) => {
-            return <Button variant={'ghost'} onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            >
-                Points <ArrowUpDown className="ml-2 h-4 w-4" />
-            </Button>
-        },
+        header: 'Points',
         size: 70,
 
         cell: ({ row }) => {
