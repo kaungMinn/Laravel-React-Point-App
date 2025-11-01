@@ -14,10 +14,10 @@ class LeaderboardController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage = 25;
+        $perPage = 15;
 
         // Get the ISO 8601 string from the frontend (e.g., "2025-11-28T17:30:00.000Z")
-        $filterDateString = $request->input('search');
+        $filterDateString = $request->input('date');
         $query = User::orderByDesc('total_points')
             ->orderBy('id', 'asc');
 

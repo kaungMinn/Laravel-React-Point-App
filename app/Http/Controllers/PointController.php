@@ -11,9 +11,6 @@ use Inertia\Inertia;
 
 class PointController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
         $pointsQuery = Point::with(relations: 'user')->latest();
@@ -63,21 +60,26 @@ class PointController extends Controller
             'action_type' => 'required|string|max:255',
         ]);
 
-        // B. Creation
-        $point = Point::create(attributes: $validated);
+        // Use a transaction to ensure both DB operations are atomic
+        try {
+            DB::transaction(function () use ($validated) {
 
-        // C. Update User's Total Points
-        // Note: You should generally use a Model Observer or database trigger
-        // to handle this automatically, but doing it here works for now.
-        $user = User::find($validated['user_id']);
+                // 1. Creation of the Point record
+                Point::create(attributes: $validated);
 
-        if ($user) {
-            $user->increment('total_points', $validated['points']);
-        } else {
-            return Redirect::route(route: 'error-page')->with('status', 404);
+                // 2. Update User's Total Points
+                // Note: Use findOrFail to avoid the unnecessary 'if ($user)' check
+                $user = User::findOrFail($validated['user_id']);
+                $user->increment('total_points', $validated['points']);
+            });
+        } catch (\Throwable $e) {
+            // Log the error for debugging
+
+            // Redirect back with an error if the transaction failed
+            return Redirect::route('points.create')->with('error', 'Failed to record points due to a system error.');
         }
 
-        // D. Redirect back to the list view
+        // D. Redirect back to the list view (only runs if the transaction COMMIT successful)
         return Redirect::route('points.index')->with('success', 'Points recorded successfully.');
     }
 
@@ -156,7 +158,7 @@ class PointController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Point $point) // ⬅️ Laravel automatically finds the Point by ID
+    public function destroy(Point $point)
     {
         $userId = $point->user_id;
         $pointsToReverse = $point->points;

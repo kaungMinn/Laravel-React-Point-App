@@ -7,6 +7,7 @@ export interface UserDataType {
     name: string;
     email: string;
     total_points: number;
+    updated_at: string;
     // You might also pass pagination metadata (current_page)
 }
 
@@ -54,4 +55,24 @@ export const createRankedColumns = (currentPage: number = 1, perPage: number = 1
             );
         }
     },
+    {
+        accessorKey: 'updated_at',
+        header: 'Updated At',
+        cell: ({ row }) => {
+            const dateString = row.original.updated_at;
+
+            // 🛑 Convert the ISO string to a Date object and format it 🛑
+            const formattedDate = new Date(dateString).toLocaleDateString(
+                'en-US', // Locale (e.g., 'en-US' for MM/DD/YYYY, 'en-GB' for DD/MM/YYYY)
+                {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                } // Options for display format
+            );
+
+            return formattedDate;
+        }
+
+    }
 ];

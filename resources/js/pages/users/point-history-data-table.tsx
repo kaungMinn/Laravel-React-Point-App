@@ -9,7 +9,7 @@ import {
     SortingState,
     useReactTable,
     VisibilityState,
-} from "@tanstack/react-table";
+} from "@tanstack/react-table"
 
 import {
     Table,
@@ -18,34 +18,30 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/components/ui/table";
-
-
+} from "@/components/ui/table"
 import { useState } from "react";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Link, router } from "@inertiajs/react";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { RotateCcw, Search } from "lucide-react";
-import { format } from "date-fns";
+import { Link } from "@inertiajs/react";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[],
-    filters: { search: string, date: '' }
+    filters: { search: string }
 }
 
 
-export function DataTable<TData, TValue>({
+export function PointHistoryDataTable<TData, TValue>({
     columns,
     data,
 }: DataTableProps<TData, TValue>) {
-    const [dateState, setDateState] = useState<Date | undefined>(undefined);
-    const [dateOpen, setDateOpen] = useState(false);
+
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+
+
+
 
     // eslint-disable-next-line react-hooks/incompatible-library
     const table = useReactTable({
@@ -73,70 +69,16 @@ export function DataTable<TData, TValue>({
         }
     })
 
-
-
-    const handleDate = (dateState: Date | undefined) => {
-        let formattedDate: string | null = null;
-
-        // 1. Check if a date is selected and format it
-        if (dateState) {
-            // Format to YYYY-MM-DD (e.g., "2025-11-01")
-            formattedDate = format(dateState, 'yyyy-MM-dd');
-        }
-
-        // 2. Call Inertia router
-        router.get(
-            route('leaderboard.index'),
-            // Send the formatted date under the 'date' key (matching your Laravel query)
-            // If dateState is undefined, send null to clear the filter
-            { date: formattedDate },
-            {
-                preserveState: true,
-                replace: true
-            }
-        );
-    }
-
-
-
     return (
         <div>
             <div className="flex items-center justify-between py-4 ">
 
                 <div className='mb-5 flex justify-between'>
-                    <div className="flex gap-3">
-                        <Popover open={dateOpen} onOpenChange={setDateOpen}>
-                            <PopoverTrigger asChild>
-                                <Button variant={'outline'} id="date" className="w-48 justify-between font-normal">
-                                    {dateState ? dateState.toLocaleDateString() : "Choose date"}
-                                </Button>
-                            </PopoverTrigger>
-
-                            <PopoverContent className="w-auto overflow-hidden p-0" align="start">
-                                <Calendar
-                                    mode="single"
-                                    captionLayout="dropdown"
-                                    onSelect={(date) => {
-                                        setDateState(date);
-                                        setDateOpen(false)
-                                    }}
-                                    selected={dateState}
-                                />
-                            </PopoverContent>
-                        </Popover>
-
-                        <Button variant={dateState ? 'default' : 'outline'} onClick={() => handleDate(dateState)}>{'Filter date'} <Search /></Button>
-                        <Button variant={dateState ? 'default' : 'outline'} onClick={() => {
-                            setDateState(undefined);
-                            handleDate(undefined);
-                        }}>Reset date<RotateCcw /></Button>
-
-                    </div>
 
                 </div>
 
                 <div className="space-x-2">
-                    <Button asChild><Link href={'/users'}>Users</Link></Button>
+                    <Button asChild><Link href={'/users/create'}>Create</Link></Button>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="outline" className="ml-auto">
@@ -176,7 +118,7 @@ export function DataTable<TData, TValue>({
                             <TableRow key={headerGroup.id} >
                                 {headerGroup.headers.map((header) => {
                                     return (
-                                        <TableHead key={header.id}  >
+                                        <TableHead key={header.id} >
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(

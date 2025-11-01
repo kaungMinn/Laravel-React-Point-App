@@ -49,7 +49,7 @@ export function DataTable<TData, TValue>({
         // Use router.get to make a new GET request
         router.get(
             // Use the current page URL or base URL for the visit
-            route('points.index'),
+            route('users.index'),
             { search: value }, // Pass the search term as query parameter
             {
                 preserveState: true, // Don't reset state (e.g., scroll position)
@@ -99,12 +99,11 @@ export function DataTable<TData, TValue>({
                 <div className='mb-5 flex justify-between'>
                     <div>
                         <Input
-                            placeholder='Search by user or action...'
+                            placeholder='Search by name or email...'
                             value={searchTerm} // Controlled component
                             onChange={handleInputChange} // Handle input and debounce search
                             className='w-80' />
                     </div>
-
                 </div>
 
                 <div className="space-x-2">

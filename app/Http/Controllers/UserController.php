@@ -19,14 +19,36 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::paginate(15);
+        $perPage = 15; // Define pagination size
+        $filters = $request->only('search');
+
+        // Start building the query
+        $usersQuery = User::latest();
+
+        // Apply Search Filter
+        if ($search = $filters['search'] ?? null) {
+            // Apply a group of WHERE conditions using a closure
+            $usersQuery->where(function ($query) use ($search) {
+                // 1. Search by name (case-insensitive partial match)
+                $query->where('name', 'like', "%{$search}%")
+
+                      // 2. OR search by email (case-insensitive partial match)
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        // Paginate the results and append the query string (for filter preservation)
+        $users = $usersQuery->paginate($perPage)->withQueryString();
 
         // **CORRECT RETURN FOR INERTIA**
         return Inertia::render('users/index', [
             // Pass the data as props to your React component
             'users' => $users,
+
+            // Pass the active filters back to the frontend for persistence
+            'filters' => $filters,
         ]);
     }
 
@@ -43,7 +65,6 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $this->authorize('create');
         // 1. Validation
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -53,6 +74,7 @@ class UserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        $this->authorize('create', User::class);
         // 2. Create the User Record
         // We use the validated data, but manually hash the password
         $user = User::create([
@@ -78,15 +100,15 @@ class UserController extends Controller
 
     public function showHistory(User $user)
     {
-        // 1. Fetch the user's points history
+        // 1. Fetch the user's points history without pagination
         $pointHistory = $user->points() // Assuming User model has a points() relationship
             ->orderByDesc('created_at')
-            ->paginate(15);
+            ->get(); // ⬅️ Changed from paginate(15) to get()
 
         // 2. Render the dedicated PointHistory component
         return Inertia::render('users/point-history', [
             'targetUser' => $user->only(['id', 'name', 'total_points']),
-            'pointHistory' => $pointHistory,
+            'pointHistory' => ['data' => $pointHistory], // This will now be a Collection, not a Paginator instance
         ]);
     }
 
@@ -114,6 +136,7 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user) // ⬅️ Use Route Model Binding
     {
+
         // 1. Validation
         $rules = [
             'name' => ['required', 'string', 'max:255'],
