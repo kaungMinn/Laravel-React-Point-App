@@ -108,7 +108,7 @@ export function DataTable<TData, TValue>({
                 </div>
 
                 <div className="space-x-2">
-                    <Button asChild><Link href={'/points/create'}>Create</Link></Button>
+                    <Button asChild><Link href={'/users/create'}>Create</Link></Button>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="outline" className="ml-auto">

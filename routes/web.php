@@ -20,6 +20,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('users', UserController::class);
     Route::resource('leaderboard', controller: LeaderboardController::class);
+    Route::get('/users/{user}/point-history', [UserController::class, 'showHistory'])->name('users.point-history');
     Route::resource('points', controller: PointController::class);
 });
 

@@ -9,7 +9,7 @@ import {
     SortingState,
     useReactTable,
     VisibilityState,
-} from "@tanstack/react-table"
+} from "@tanstack/react-table";
 
 import {
     Table,
@@ -18,13 +18,17 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/components/ui/table"
-import { useCallback, useState } from "react";
+} from "@/components/ui/table";
+
+
+import { useEffect, useState } from "react";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Link, router } from "@inertiajs/react";
-import debounce from "lodash.debounce";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { RotateCcw } from "lucide-react";
+import { format } from "date-fns";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -38,35 +42,13 @@ export function DataTable<TData, TValue>({
     data,
     filters = { search: '' }
 }: DataTableProps<TData, TValue>) {
-
+    const [dateState, setDateState] = useState<Date | undefined>(undefined);
+    const [dateOpen, setDateOpen] = useState(false);
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
-    const [searchTerm, setSearchTerm] = useState(filters.search || '');
-
-    const performSearch = useCallback((value: string) => {
-        // Use router.get to make a new GET request
-        router.get(
-            // Use the current page URL or base URL for the visit
-            route('points.index'),
-            { search: value }, // Pass the search term as query parameter
-            {
-                preserveState: true, // Don't reset state (e.g., scroll position)
-                replace: true,       // Replace history state to prevent excessive back entries
-            }
-        );
-    }, []);
-
-    // eslint-disable-next-line react-hooks/use-memo, react-hooks/exhaustive-deps
-    const debouncedSearch = useCallback(debounce(performSearch, 300), []);
-
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setSearchTerm(value); // Update local state immediately
-        debouncedSearch(value); // Trigger the debounced search function
-    };
-
+    // eslint-disable-next-line react-hooks/incompatible-library
     const table = useReactTable({
         data,
         columns,
@@ -92,23 +74,67 @@ export function DataTable<TData, TValue>({
         }
     })
 
+    useEffect(() => {
+        let formattedDate: string | null = null;
+
+        // 1. Check if a date is selected and format it
+        if (dateState) {
+            // Format to YYYY-MM-DD (e.g., "2025-11-01")
+            formattedDate = format(dateState, 'yyyy-MM-dd');
+        }
+
+        // 2. Call Inertia router
+        router.get(
+            route('leaderboard.index'),
+            // Send the formatted date under the 'date' key (matching your Laravel query)
+            // If dateState is undefined, send null to clear the filter
+            { search: formattedDate },
+            {
+                preserveState: true,
+                replace: true
+            }
+        );
+        // CRITICAL: Ensure the dependency array triggers only when the date state changes
+    }, [dateState])
+
+
+
     return (
         <div>
             <div className="flex items-center justify-between py-4 ">
 
                 <div className='mb-5 flex justify-between'>
-                    <div>
-                        <Input
-                            placeholder='Search by user or action...'
-                            value={searchTerm} // Controlled component
-                            onChange={handleInputChange} // Handle input and debounce search
-                            className='w-80' />
+                    <div className="flex gap-3">
+                        <Popover open={dateOpen} onOpenChange={setDateOpen}>
+                            <PopoverTrigger asChild>
+                                <Button variant={'outline'} id="date" className="w-48 justify-between font-normal">
+                                    {dateState ? dateState.toLocaleDateString() : "Select date"}
+                                </Button>
+                            </PopoverTrigger>
+
+                            <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+                                <Calendar
+                                    mode="single"
+                                    captionLayout="dropdown"
+                                    onSelect={(date) => {
+                                        setDateState(date);
+                                        setDateOpen(false)
+                                    }}
+                                    selected={dateState}
+                                />
+                            </PopoverContent>
+                        </Popover>
+
+                        <Button variant={'outline'} size={'icon'} onClick={() => {
+                            setDateState(undefined)
+                        }}><RotateCcw /></Button>
+
                     </div>
 
                 </div>
 
                 <div className="space-x-2">
-                    <Button asChild><Link href={'/points/create'}>Users</Link></Button>
+                    <Button asChild><Link href={'/users'}>Users</Link></Button>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="outline" className="ml-auto">

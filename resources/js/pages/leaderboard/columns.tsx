@@ -12,26 +12,27 @@ export interface UserDataType {
 
 export const createRankedColumns = (currentPage: number = 1, perPage: number = 10): ColumnDef<UserDataType>[] => [
     {
-        // New Rank Column
-        id: 'rank', // Give it a unique ID since it's not a direct accessorKey
-        header: "Rank",
+        // 1. RANK COLUMN (Header and Cell Styling)
+        id: 'rank',
+        // 🛠️ Header Styling: Apply a background color to the header cell
+        header: () => <div className="font-bold text-center text-white bg-yellow-500  p-1 rounded-t-lg">Rank</div>,
         size: 50,
         cell: ({ row }) => {
-            // Calculate the rank: (Current Page - 1) * Items Per Page + Row Index + 1
             const rank = (currentPage - 1) * perPage + row.index + 1;
 
-            // Optional: You can style top ranks differently
             let rankClass = 'font-semibold text-gray-700';
-            if (rank === 1) rankClass = 'font-bold text-yellow-600 text-lg';
-            else if (rank === 2) rankClass = 'font-bold text-gray-500';
-            else if (rank === 3) rankClass = 'font-bold text-amber-600';
+            // Conditional styling for top ranks (already implemented)
+            if (rank === 1) rankClass = 'font-extrabold text-white bg-yellow-500 rounded-full w-8 h-8 flex items-center justify-center mx-auto shadow-md';
+            else if (rank === 2) rankClass = 'font-bold text-white bg-gray-400 rounded-full w-8 h-8 flex items-center justify-center mx-auto';
+            else if (rank === 3) rankClass = 'font-bold text-white bg-amber-500 rounded-full w-8 h-8 flex items-center justify-center mx-auto';
 
-            return <span className={`${rankClass}`}>{rank}</span>;
+            // Ensure the parent div matches the Rank header's alignment
+            return <div className={`text-center  ${rankClass}`}>{rank}</div>;
         }
     },
     {
         accessorKey: 'name',
-        header: "Name"
+        header: "Name",
     },
     {
         accessorKey: 'email',
@@ -45,7 +46,7 @@ export const createRankedColumns = (currentPage: number = 1, perPage: number = 1
             // The Link suggests this is clickable, perhaps to the user's history page
             return (
                 <Link
-                    // href={route('users.history', row.original.id)}
+                    href={route('users.point-history', row.original.id)}
                     className="underline text-blue-500 hover:text-blue-700"
                 >
                     {total_points ? `+${total_points}` : 0}

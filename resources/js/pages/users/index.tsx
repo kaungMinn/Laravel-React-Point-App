@@ -19,8 +19,12 @@ interface UserIndexProps extends PageProps {
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Points',
-        href: 'points',
+        title: 'Leaderboard',
+        href: '/leaderboard',
+    },
+    {
+        title: 'Users',
+        href: '/users',
     },
 ];
 
@@ -31,7 +35,7 @@ const Users = ({ users, filters }: UserIndexProps) => {
             <Head title="Points" />
 
             <div className="bg-white p-6">
-                <h2 className="text-xl font-semibold mb-4">Point Transaction History</h2>
+                <h2 className="text-xl font-semibold mb-4">Users</h2>
                 <div>
                     <DataTable columns={columns} data={users.data} filters={filters} />
                     <Pagination links={users.links} />

@@ -6,8 +6,8 @@ use App\Models\Point;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
-use Redirect;
 
 class PointController extends Controller
 {
@@ -123,6 +123,7 @@ class PointController extends Controller
     {
         // A. Find the existing Point record
         $point = Point::findOrFail($id);
+
         $oldPoints = $point->points;
         $oldUserId = $point->user_id; // User who received the old points
 
