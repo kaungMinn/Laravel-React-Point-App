@@ -10,45 +10,52 @@ use Inertia\Inertia;
 class LeaderboardController extends Controller
 {
     /**
-     * Display a ranking of users.
+     * Display a ranking of users with date range filtering based on explicit 'from' and 'to' parameters.
      */
     public function index(Request $request)
     {
         $perPage = 15;
 
-        // Get the ISO 8601 string from the frontend (e.g., "2025-11-28T17:30:00.000Z")
-        $filterDateString = $request->input('date');
+        // 1. Get filters, prioritizing the explicit 'from' and 'to' date strings
+        $filters = $request->only(['from', 'to']);
+        $from = $filters['from'] ?? null;
+        $to = $filters['to'] ?? null;
+
         $query = User::orderByDesc('total_points')
             ->orderBy('id', 'asc');
 
-        if ($filterDateString) {
+        $startDate = null;
+        $endDate = null;
 
+        // Check if an explicit date range was provided
+        if ($from && $to) {
             try {
-                // 1. Parse the incoming UTC string into a Carbon instance
-                $date = Carbon::parse($filterDateString);
+                // Parse the 'from' date and set it to the start of the day in UTC.
+                // This ensures the query includes the entire start day regardless of the server timezone.
+                $startDate = Carbon::parse($from)->setTimezone('UTC')->startOfDay();
 
-                // 2. Determine the start and end boundaries for that *Calendar Day*
-                //    in the server's local timezone (or UTC, depending on your DB setup).
-
-                // We'll use startOfDay() and endOfDay() to define the 24-hour window
-                // for the day '2025-11-28'.
-                $startOfDay = $date->copy()->startOfDay(); // 2025-11-28 00:00:00 (in the current timezone)
-                $endOfDay = $date->copy()->endOfDay();     // 2025-11-28 23:59:59 (in the current timezone)
-
-                // 3. Apply the WHERE clause using the precise time boundaries
-                $query->whereBetween('updated_at', [$startOfDay, $endOfDay]);
+                // Parse the 'to' date and set it to the end of the day in UTC.
+                // This ensures the query includes the entire end day.
+                $endDate = Carbon::parse($to)->setTimezone('UTC')->endOfDay();
 
             } catch (\Exception $e) {
-                // Log error or ignore filter if the date format is invalid
+                // Ignore invalid dates for now, letting the query return all results
             }
         }
 
-        // ... rest of pagination and Inertia rendering
+        // 2. Apply the WHERE clause if a valid date range was successfully determined
+        // If $from and $to were null, this block is skipped, and all users are returned.
+        if ($startDate && $endDate) {
+            $query->whereBetween('updated_at', [$startDate, $endDate]);
+        }
+
+        // 3. Paginate the results and append the query string
         $users = $query->paginate($perPage)->withQueryString();
 
+        // 4. Pass back the active filter parameters
         return Inertia::render('leaderboard/index', [
             'rankedUsers' => $users,
-            'activeDate' => $filterDateString, // Pass the original string back for re-initialization
+            'filters' => $filters, // Pass back the 'from' and 'to' strings
         ]);
     }
 }

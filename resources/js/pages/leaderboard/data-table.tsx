@@ -29,6 +29,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { RotateCcw, Search } from "lucide-react";
 import { format } from "date-fns";
+import { DateRange } from "react-day-picker";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -42,6 +43,7 @@ export function DataTable<TData, TValue>({
     data,
 }: DataTableProps<TData, TValue>) {
     const [dateState, setDateState] = useState<Date | undefined>(undefined);
+    const [rangeDate, setRangeDate] = useState<DateRange | undefined>(undefined);
     const [dateOpen, setDateOpen] = useState(false);
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -97,7 +99,35 @@ export function DataTable<TData, TValue>({
         );
     }
 
+    const handleDateRange = (dateRange: DateRange | undefined) => {
 
+        // Initialize the query object
+        const queryParams: { from?: string; to?: string } = {};
+
+        // 1. Check and format the 'from' date
+        if (dateRange?.from) {
+            // Example: 2025-11-12T00:00:00.000Z
+            queryParams.from = format(dateRange.from, "yyyy-MM-dd'T'00:00:00.000'Z'");
+        }
+
+        // 2. Check and format the 'to' date
+        if (dateRange?.to) {
+            // Format the 'to' date to the end of the day in UTC for inclusive filtering
+            // Example: 2025-11-26T23:59:59.000Z
+            queryParams.to = format(dateRange.to, "yyyy-MM-dd'T'23:59:59.000'Z'");
+        }
+
+        // 3. Call Inertia router with the new parameters
+        router.get(
+            route('leaderboard.index'),
+            // Send the from/to properties
+            queryParams,
+            {
+                preserveState: true,
+                replace: true
+            }
+        );
+    }
 
     return (
         <div>
@@ -108,30 +138,32 @@ export function DataTable<TData, TValue>({
                         <Popover open={dateOpen} onOpenChange={setDateOpen}>
                             <PopoverTrigger asChild>
                                 <Button variant={'outline'} id="date" className="w-48 justify-between font-normal">
-                                    {dateState ? dateState.toLocaleDateString() : "Choose date"}
+                                    {/* Check if BOTH from and to exist to display the full range */}
+                                    {rangeDate?.from && rangeDate?.to ?
+                                        // Display the range: e.g., "11/1/2025 - 11/30/2025"
+                                        `${rangeDate.from.toLocaleDateString()} - ${rangeDate.to.toLocaleDateString()}`
+                                        : "Choose date"
+                                    }
                                 </Button>
                             </PopoverTrigger>
 
                             <PopoverContent className="w-auto overflow-hidden p-0" align="start">
-                                <Calendar
-                                    mode="single"
-                                    captionLayout="dropdown"
-                                    onSelect={(date) => {
-                                        setDateState(date);
-                                        setDateOpen(false)
-                                    }}
-                                    selected={dateState}
-                                />
+                                <Calendar mode="range" onSelect={(dateRange) => {
+                                    setRangeDate(dateRange);
+                                }} selected={rangeDate} />
                             </PopoverContent>
                         </Popover>
 
-                        <Button variant={dateState ? 'default' : 'outline'} onClick={() => handleDate(dateState)}>{'Filter date'} <Search /></Button>
-                        <Button variant={dateState ? 'default' : 'outline'} onClick={() => {
-                            setDateState(undefined);
-                            handleDate(undefined);
+                        <Button variant={rangeDate ? 'default' : 'outline'} onClick={() => { handleDateRange(rangeDate) }}>{'Filter date'} <Search /></Button>
+                        <Button variant={rangeDate ? 'default' : 'outline'} onClick={() => {
+
+                            handleDateRange(undefined);
+                            setRangeDate(undefined);
                         }}>Reset date<RotateCcw /></Button>
 
                     </div>
+
+
 
                 </div>
 

@@ -178,3 +178,15 @@ test('super admin can delete users', function () {
         ->assertRedirect(route('users.index'));
 
 });
+
+test('super admin cannot delete their own account', function () {
+    // Arrange: Get the Super Admin
+    $superAdmin = superAdmin();
+
+    // Act: Send DELETE request attempting to delete the Super Admin's own account
+    $response = $this->actingAs($superAdmin)
+        ->delete(route('users.destroy', $superAdmin));
+
+    // The super admin account should still exist.
+    $this->assertDatabaseHas('users', ['id' => $superAdmin->id]);
+});

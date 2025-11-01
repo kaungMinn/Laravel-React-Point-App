@@ -29,7 +29,6 @@ class PointController extends Controller
 
         return Inertia::render('points/index', [
             'points' => $pointsQuery->paginate(15)->withQueryString(),
-            // 🛑 Important: Pass the active filters back to the frontend
             'filters' => $filters,
         ]);
     }
@@ -68,7 +67,6 @@ class PointController extends Controller
                 Point::create(attributes: $validated);
 
                 // 2. Update User's Total Points
-                // Note: Use findOrFail to avoid the unnecessary 'if ($user)' check
                 $user = User::findOrFail($validated['user_id']);
                 $user->increment('total_points', $validated['points']);
             });
@@ -83,9 +81,6 @@ class PointController extends Controller
         return Redirect::route('points.index')->with('success', 'Points recorded successfully.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
         //
@@ -98,29 +93,20 @@ class PointController extends Controller
     {
 
         // 1. Fetch the specific Point record, including the associated user
-
         $point = Point::with('user')->findOrFail($id);
 
         // 2. Fetch all users to populate the user dropdown (same as in create)
-
         $users = User::select('id', 'name')->get();
 
         // 3. Render the React component for editing
-
         return Inertia::render('points/edit', [
-
             'point' => $point, // The data to pre-fill the form
-
             'users' => $users,
-
             'defaultActionType' => 'Manual Award', // Can be kept or removed
 
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
         // A. Find the existing Point record
@@ -140,30 +126,24 @@ class PointController extends Controller
         DB::transaction(function () use ($point, $validated, $oldPoints, $oldUserId) {
 
             // 1. REVERSE the old points from the original user
-            // We use `decrement` to subtract.
             User::where('id', $oldUserId)->decrement('total_points', $oldPoints);
 
             // 2. UPDATE the Point record itself
             $point->update($validated);
 
             // 3. APPLY the new points to the potentially new user
-            // We use `increment` to add the new amount.
             User::where('id', $validated['user_id'])->increment('total_points', $validated['points']);
-        }); // The transaction commits here if no errors occur
+        });
 
         // D. Redirect back to the index with a success message
         return Redirect::route('points.index')->with('success', 'Point record updated successfully.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Point $point)
     {
         $userId = $point->user_id;
         $pointsToReverse = $point->points;
 
-        // Use a Database Transaction for Atomicity
         DB::transaction(function () use ($point, $userId, $pointsToReverse) {
 
             // 1. REVERSE the points from the associated user's total
@@ -173,7 +153,7 @@ class PointController extends Controller
             // 2. DELETE the Point record
             $point->delete();
 
-        }); // The transaction commits here if no errors occur
+        });
 
         // Redirect back to the index with a success message
         return Redirect::route('points.index')->with('success', 'Point record deleted successfully and user totals updated.');

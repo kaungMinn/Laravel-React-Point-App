@@ -16,18 +16,15 @@ class UserController extends Controller
 {
     use AuthorizesRequests, ValidatesRequests;
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
         $perPage = 15; // Define pagination size
         $filters = $request->only('search');
 
-        // Start building the query
+        // A. Start building the query
         $usersQuery = User::latest();
 
-        // Apply Search Filter
+        // B. Apply Search Filter
         if ($search = $filters['search'] ?? null) {
             // Apply a group of WHERE conditions using a closure
             $usersQuery->where(function ($query) use ($search) {
@@ -39,30 +36,21 @@ class UserController extends Controller
             });
         }
 
-        // Paginate the results and append the query string (for filter preservation)
+        // C. Paginate the results and append the query string (for filter preservation)
         $users = $usersQuery->paginate($perPage)->withQueryString();
 
-        // **CORRECT RETURN FOR INERTIA**
+        // D. Render the page
         return Inertia::render('users/index', [
-            // Pass the data as props to your React component
             'users' => $users,
-
-            // Pass the active filters back to the frontend for persistence
             'filters' => $filters,
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return Inertia::render('users/create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         // 1. Validation
@@ -76,7 +64,6 @@ class UserController extends Controller
 
         $this->authorize('create', User::class);
         // 2. Create the User Record
-        // We use the validated data, but manually hash the password
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
@@ -90,9 +77,6 @@ class UserController extends Controller
         return Redirect::route('users.index')->with('success', 'User created successfully: '.$user->name);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
         //
@@ -112,29 +96,18 @@ class UserController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(User $user) // ⬅️ Using Route Model Binding
     {
-        // We ensure the user object only contains the necessary, safe attributes
-        // to send to the frontend.
+        // send to the frontend.
         $userForForm = $user->only(['id', 'name', 'email']);
-        // dd($userForForm);
 
         // Render the UserForm component, passing the user data
         return Inertia::render('users/edit', [
-            // Assuming you have a separate Edit page that wraps the UserForm
             'user' => $userForForm,
-            // If you have roles/permissions, you'd pass them here:
-            // 'roles' => Role::all(),
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, User $user) // ⬅️ Use Route Model Binding
+    public function update(Request $request, User $user)
     {
 
         // 1. Validation
@@ -174,15 +147,8 @@ class UserController extends Controller
         return Redirect::route('users.index')->with('success', 'User updated successfully: '.$user->name);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(User $user) // ⬅️ Using Route Model Binding
     {
-        // 1. (Recommended) Authorization Check
-        // Ensure only authorized users (e.g., admins) can delete users.
-        // Uncomment the line below if you have a policy defined (e.g., UserPolicy)
-        // Gate::authorize('delete', $user);
         $this->authorize('delete', $user);
         // CRITICAL: Prevent admins from deleting their own account while logged in
         if (auth()->id() === $user->id) {

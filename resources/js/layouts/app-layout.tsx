@@ -18,27 +18,34 @@ type FlashMessages = {
 export default ({ children, breadcrumbs, ...props }: AppLayoutProps) => {
     const page = usePage();
     const flash = page.props.flash as FlashMessages;
+    const errors = page.props.errors;
 
+    // Assuming 'flash' and 'errors' are pulled directly from Inertia's usePage() hook
     useEffect(() => {
+        // 1. Handle SUCCESS Flash Message
         if (flash?.success) {
             toast.success(flash.success);
 
-            // 🛑 CRITICAL FIX: Clear the flash message 🛑
-            // Reloads the current page, but only requests the 'flash' data.
-            // This prevents the message from persisting in the browser history state.
-            router.reload({
-                only: ['flash'],
-            });
+            // Clear the flash message from state
+            router.reload({ only: ['flash'] });
         }
 
+        // 2. Handle CUSTOM ERROR Flash Message (from Redirect::route()->with('error', '...'))
         if (flash?.error) {
             toast.error(flash.error);
-            // Also clear errors
-            router.reload({
-                only: ['flash'],
-            });
+
+            // Clear the flash message from state
+            router.reload({ only: ['flash'] });
         }
-    }, [flash])
+        if (Object.keys(errors).length > 0) {
+            console.log(errors)
+            toast.error(errors[0], {
+            });
+
+
+        }
+
+    }, [flash, errors]);
     return (
         <AppLayoutTemplate breadcrumbs={breadcrumbs} {...props}>
             {children}
