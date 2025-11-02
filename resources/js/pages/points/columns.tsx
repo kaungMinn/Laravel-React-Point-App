@@ -40,6 +40,7 @@ const handleDelete = (id: number) => {
             onError: (errors) => {
                 console.error('Failed to delete record:', errors);
             },
+            invalidateCacheTags: ['/leaderboard', '/points', '/users']
         });
     }
 };

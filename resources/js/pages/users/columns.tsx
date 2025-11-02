@@ -22,6 +22,7 @@ const handleDelete = (id: number) => {
             onError: (errors) => {
                 console.error('Failed to delete user:', errors);
             },
+            invalidateCacheTags: ['/leaderboard', '/points', '/users']
         });
     }
 }
