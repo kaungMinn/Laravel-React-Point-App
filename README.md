@@ -1,6 +1,6 @@
 🚀 Project Name
 Overview
-This is a [Brief, compelling description of your app - e.g., "single-page application for real-time user leaderboard and analytics"]. Built using the Laravel 11+ (latest) framework with Inertia.js for a modern, reactive frontend experience.
+This is a [Brief, compelling description of your app - e.g., "single-page application for real-time user leaderboard and analytics"]. Built using the Laravel 12.35.1 framework with Inertia.js for a modern, reactive frontend experience.
 
 This application uses SQLite as the default database engine for simple, portable development and testing.
 
@@ -36,7 +36,16 @@ Create your environment file by copying the example:
 Bash
 
 cp .env.example .env
-Generate a unique application key:
+
+<span style="color: red">Add superadmin in the .env</span>
+
+SUPER_ADMIN = "test@example.com" || Your Mail
+
+<div style="font-size: 18pt; background: black; color: white">user update and delete are only by super admin</div>
+
+*************
+
+Generate a unique application key
 
 Bash
 
@@ -71,17 +80,26 @@ php artisan serve
 
 # Terminal 2: Compile and watch frontend assets (Vite)
 npm run dev
-The application should now be accessible at http://127.0.0.1:8000.
+The application should now be accessible at http://localhost:8000
 
-🧪 Running Tests
+<span style="font-size: 24pt; color: blue;">🧪 Running Tests</span>
+
+
 The application uses Pest for robust feature and unit testing.
 
 To run all tests:
 
 Bash
 
-php artisan test
-(Optional) If you wish to use a separate in-memory database for testing (recommended): Ensure your phpunit.xml or .env.testing file contains:
+<div style="font-size: 24pt; background-color: black; color: white ">Test controllers</div> 
+
+<span>php artisan test --filter LeaderboardControllerTest</span>
+
+
+php artisan test --filter UserControllerTest 
+
+
+php artisan test --filter PointControllerTest 
 
 XML
 
