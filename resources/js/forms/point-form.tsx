@@ -37,8 +37,6 @@ export default function PointForm({ users, defaultActionType = "Manual Award", p
         action_type: point?.action_type ?? defaultActionType,
     });
 
-    console.log('data', data)
-
     const isUpdating = !!point;
 
     // 2. Define the form submission handler
@@ -46,9 +44,9 @@ export default function PointForm({ users, defaultActionType = "Manual Award", p
         e.preventDefault();
         // Submit data to the points.store Laravel route
         if (isUpdating) {
-            put(route('points.update', point.id))
+            put(route('points.update', point.id), { invalidateCacheTags: ['/leaderboard', '/points', '/users'] })
         } else {
-            post(route('points.store'));
+            post(route('points.store'), { invalidateCacheTags: ['/leaderboard', '/points', '/users'] });
         }
     };
 

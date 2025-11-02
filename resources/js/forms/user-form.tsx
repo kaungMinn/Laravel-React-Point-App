@@ -41,9 +41,9 @@ export default function UserForm({ user }: UserFormProps) {
         // Determine which route and method to use
         if (isUpdating) {
             // Note: Patch is often preferred for updates, but put is fine too
-            put(route('users.update', user.id));
+            put(route('users.update', user.id), { invalidateCacheTags: ['/leaderboard', '/points', '/users'] });
         } else {
-            post(route('users.store'));
+            post(route('users.store'), { invalidateCacheTags: ['/leaderboard', '/points', '/users'] });
         }
     };
 

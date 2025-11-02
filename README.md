@@ -1,6 +1,5 @@
 🚀 Project Name
 Overview
-This is a [Brief, compelling description of your app - e.g., "single-page application for real-time user leaderboard and analytics"]. Built using the Laravel 12.35.1 framework with Inertia.js for a modern, reactive frontend experience.
 
 This application uses SQLite as the default database engine for simple, portable development and testing.
 
@@ -65,11 +64,13 @@ Create the empty SQLite file:
 Bash
 
 touch database/database.sqlite
+
 Run the migrations and seed the database with initial data:
 
 Bash
 
 php artisan migrate --seed
+
 5. Run the Application
 Start the Laravel development server and compile the frontend assets:
 
