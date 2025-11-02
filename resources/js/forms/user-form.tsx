@@ -48,7 +48,7 @@ export default function UserForm({ user }: UserFormProps) {
     };
 
     return (
-        <div className="max-w-xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+        <div className="max-w-3xl min-w-md mx-auto p-6 bg-white shadow-lg rounded-lg">
             <h2 className="text-2xl font-bold mb-6">
                 {isUpdating ? `Edit User: ${user.name}` : 'Create New User'}
             </h2>
@@ -57,7 +57,7 @@ export default function UserForm({ user }: UserFormProps) {
 
                 {/* Name Field */}
                 <div>
-                    <Label htmlFor="name">Name **</Label>
+                    <Label htmlFor="name" className='mb-1'>Name **</Label>
                     <Input
                         type="text"
                         id="name"
@@ -71,7 +71,7 @@ export default function UserForm({ user }: UserFormProps) {
 
                 {/* Email Field */}
                 <div>
-                    <Label htmlFor="email">Email **</Label>
+                    <Label htmlFor="email" className='mb-1'>Email **</Label>
                     <Input
                         type="email"
                         id="email"
@@ -85,7 +85,7 @@ export default function UserForm({ user }: UserFormProps) {
 
                 {/* Password Field (Required for Create, Optional for Update) */}
                 <div>
-                    <Label htmlFor="password">Password {isUpdating ? '(Leave blank to keep current)' : '**'}</Label>
+                    <Label htmlFor="password" className='mb-1'>Password {isUpdating ? '(Leave blank to keep current)' : '**'}</Label>
                     <Input
                         type="password"
                         id="password"
@@ -99,7 +99,7 @@ export default function UserForm({ user }: UserFormProps) {
 
                 {/* Password Confirmation Field */}
                 <div>
-                    <Label htmlFor="password_confirmation">Confirm Password {isUpdating ? '' : '**'}</Label>
+                    <Label htmlFor="password_confirmation" className='mb-1'>Confirm Password {isUpdating ? '' : '**'}</Label>
                     <Input
                         type="password"
                         id="password_confirmation"

@@ -35,7 +35,7 @@ const UserEdit = ({ user }: UserEditProps) => {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <div>
+            <div className=' h-full w-full flex items-center justify-center bg-gray-200'>
                 <Head title={`Edit User: ${user.name}`} />
                 <UserForm user={user} />
             </div>

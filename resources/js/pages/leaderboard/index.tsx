@@ -15,7 +15,7 @@ interface UserIndexProps extends PageProps {
         current_page: number,
         per_page: number
     },
-    filters: { search: string }
+    filters: { search: string, date: string }
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -25,11 +25,13 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Leaderboard({ rankedUsers, filters = { search: '' } }: UserIndexProps) {
+export default function Leaderboard({ rankedUsers, filters = { search: '', date: '' } }: UserIndexProps) {
     const columns = createRankedColumns(
         rankedUsers.current_page,
         rankedUsers.per_page
     );
+
+    console.log('rankedUsers', rankedUsers);
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />

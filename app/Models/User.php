@@ -4,11 +4,10 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
-use App\Models\Point;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -24,7 +23,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'total_points'
+        'total_points',
+
     ];
 
     /**
@@ -54,8 +54,8 @@ class User extends Authenticatable
     }
 
     public function points(): HasMany
-{
-    // 'user_id' is the foreign key on the 'points' table
-    return $this->hasMany(Point::class);
-}
+    {
+        // 'user_id' is the foreign key on the 'points' table
+        return $this->hasMany(Point::class);
+    }
 }

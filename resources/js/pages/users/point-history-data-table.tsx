@@ -71,7 +71,7 @@ export function PointHistoryDataTable<TData, TValue>({
 
     return (
         <div>
-            <div className="flex items-center justify-between py-4 ">
+            <div className="flex flex-col lg:flex-row items-center justify-between py-4 ">
 
                 <div className='mb-5 flex justify-between'>
 

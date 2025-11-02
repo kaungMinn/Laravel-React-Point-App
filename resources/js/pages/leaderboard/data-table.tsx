@@ -34,7 +34,7 @@ import { DateRange } from "react-day-picker";
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[],
-    filters: { search: string, date: '' }
+    filters: { search: string, date: string }
 }
 
 
@@ -42,7 +42,6 @@ export function DataTable<TData, TValue>({
     columns,
     data,
 }: DataTableProps<TData, TValue>) {
-    const [dateState, setDateState] = useState<Date | undefined>(undefined);
     const [rangeDate, setRangeDate] = useState<DateRange | undefined>(undefined);
     const [dateOpen, setDateOpen] = useState(false);
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -76,33 +75,12 @@ export function DataTable<TData, TValue>({
     })
 
 
-
-    const handleDate = (dateState: Date | undefined) => {
-        let formattedDate: string | null = null;
-
-        // 1. Check if a date is selected and format it
-        if (dateState) {
-            // Format to YYYY-MM-DD (e.g., "2025-11-01")
-            formattedDate = format(dateState, 'yyyy-MM-dd');
-        }
-
-        // 2. Call Inertia router
-        router.get(
-            route('leaderboard.index'),
-            // Send the formatted date under the 'date' key (matching your Laravel query)
-            // If dateState is undefined, send null to clear the filter
-            { date: formattedDate },
-            {
-                preserveState: true,
-                replace: true
-            }
-        );
-    }
-
     const handleDateRange = (dateRange: DateRange | undefined) => {
 
         // Initialize the query object
-        const queryParams: { from?: string; to?: string } = {};
+        const queryParams: { from?: string | null; to?: string | null } = { from: null, to: null };
+
+        console.log(dateRange);
 
         // 1. Check and format the 'from' date
         if (dateRange?.from) {
@@ -131,10 +109,10 @@ export function DataTable<TData, TValue>({
 
     return (
         <div>
-            <div className="flex items-center justify-between py-4 ">
+            <div className="flex flex-col lg:flex-row items-center justify-between py-4 ">
 
-                <div className='mb-5 flex justify-between'>
-                    <div className="flex gap-3">
+                <div className='mb-5 flex  justify-between'>
+                    <div className="flex gap-3 flex-col lg:flex-row">
                         <Popover open={dateOpen} onOpenChange={setDateOpen}>
                             <PopoverTrigger asChild>
                                 <Button variant={'outline'} id="date" className="w-48 justify-between font-normal">
@@ -142,7 +120,7 @@ export function DataTable<TData, TValue>({
                                     {rangeDate?.from && rangeDate?.to ?
                                         // Display the range: e.g., "11/1/2025 - 11/30/2025"
                                         `${rangeDate.from.toLocaleDateString()} - ${rangeDate.to.toLocaleDateString()}`
-                                        : "Choose date"
+                                        : "Choose date range"
                                     }
                                 </Button>
                             </PopoverTrigger>
@@ -154,12 +132,11 @@ export function DataTable<TData, TValue>({
                             </PopoverContent>
                         </Popover>
 
-                        <Button variant={rangeDate ? 'default' : 'outline'} onClick={() => { handleDateRange(rangeDate) }}>{'Filter date'} <Search /></Button>
+                        <Button variant={rangeDate ? 'default' : 'outline'} onClick={() => { handleDateRange(rangeDate) }}>{'Filter'} <Search /></Button>
                         <Button variant={rangeDate ? 'default' : 'outline'} onClick={() => {
-
                             handleDateRange(undefined);
                             setRangeDate(undefined);
-                        }}>Reset date<RotateCcw /></Button>
+                        }}>Reset<RotateCcw /></Button>
 
                     </div>
 

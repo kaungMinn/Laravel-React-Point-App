@@ -13,7 +13,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 const UserCreate = () => {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <div>
+            <div className=' h-full w-full flex items-center justify-center bg-gray-200'>
                 <Head title='Create User' />
                 <UserForm />
             </div>

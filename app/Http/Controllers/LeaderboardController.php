@@ -16,10 +16,13 @@ class LeaderboardController extends Controller
     {
         $perPage = 15;
 
-        // 1. Get filters, prioritizing the explicit 'from' and 'to' date strings
+        // 1. Get and standardize filters
         $filters = $request->only(['from', 'to']);
         $from = $filters['from'] ?? null;
         $to = $filters['to'] ?? null;
+
+        // Pass back the received string filters for the frontend/testing assertion
+        $filters = ['from' => $from, 'to' => $to];
 
         $query = User::orderByDesc('total_points')
             ->orderBy('id', 'asc');
@@ -30,21 +33,20 @@ class LeaderboardController extends Controller
         // Check if an explicit date range was provided
         if ($from && $to) {
             try {
-                // Parse the 'from' date and set it to the start of the day in UTC.
-                // This ensures the query includes the entire start day regardless of the server timezone.
-                $startDate = Carbon::parse($from)->setTimezone('UTC')->startOfDay();
+                // The incoming strings (e.g., '2025-11-01T12:00:00.000Z') are ISO 8601 and implicitly UTC.
 
-                // Parse the 'to' date and set it to the end of the day in UTC.
-                // This ensures the query includes the entire end day.
-                $endDate = Carbon::parse($to)->setTimezone('UTC')->endOfDay();
-
+                // Parse 'from', set to the start of that day (00:00:00 UTC)
+                // This correctly sets the lower bound for the database query.
+                $startDate = Carbon::parse($from)->startOfDay()->toDateTimeString('microsecond'); // Use high precision
+                // Parse 'to', set to the end of that day (23:59:59 UTC)
+                // This correctly sets the upper bound for the database query.
+                $endDate = Carbon::parse($to)->endOfDay()->toDateTimeString('microsecond'); // Use high precision
             } catch (\Exception $e) {
-                // Ignore invalid dates for now, letting the query return all results
+                // Log or handle the exception if desired. For now, we skip date filtering.
             }
         }
 
-        // 2. Apply the WHERE clause if a valid date range was successfully determined
-        // If $from and $to were null, this block is skipped, and all users are returned.
+        // 2. Apply the WHERE clause only if a valid date range was successfully determined
         if ($startDate && $endDate) {
             $query->whereBetween('updated_at', [$startDate, $endDate]);
         }
@@ -52,7 +54,7 @@ class LeaderboardController extends Controller
         // 3. Paginate the results and append the query string
         $users = $query->paginate($perPage)->withQueryString();
 
-        // 4. Pass back the active filter parameters
+        // 4. Pass back the filtered data and active filter parameters
         return Inertia::render('leaderboard/index', [
             'rankedUsers' => $users,
             'filters' => $filters, // Pass back the 'from' and 'to' strings
